@@ -1,11 +1,11 @@
 Package: many.models
 Type: Package
 Title: Automating Many Models
-Version: 0.1.0
+Version: 0.1.1
 Author: Brian High
 Maintainer: Brian High <bhigh@live.com>
 Description: This package provides helper functions for automating modeling.
-License: MIT
+License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports: stats
