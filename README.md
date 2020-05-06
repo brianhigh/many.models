@@ -5,7 +5,7 @@
 This package provides helper functions for automating modeling of "many models".
 
 * [extract.elem](R/extract.elem.R): Extract an element from a model fit.
-* [elem.to.wide](R/elem.to.wide): Reshape element results to "wide".
+* [elem.to.wide](R/elem.to.wide.R): Reshape element results to "wide".
 
 ## Package installation
 
