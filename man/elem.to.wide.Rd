@@ -4,10 +4,12 @@
 \alias{elem.to.wide}
 \title{Reshape a Model Fit Element}
 \usage{
-elem.to.wide(.data)
+elem.to.wide(.data, idvar = "formula")
 }
 \arguments{
 \item{.data}{Data frame with "variable", "value", and "formula" columns.}
+
+\item{idvar}{Names of one or more grouping variables, passed to reshape().}
 }
 \value{
 Data frame in "Wide" format.

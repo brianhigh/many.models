@@ -3,6 +3,7 @@
 #' Reshapes as extracted model fit element data frame to "wide" format.
 #'
 #' @param .data Data frame with "variable", "value", and "formula" columns.
+#' @param idvar Names of one or more grouping variables, passed to reshape().
 #'
 #' @return Data frame in "Wide" format.
 #'
@@ -16,10 +17,10 @@
 #' df.wide
 #'
 #' @export
-elem.to.wide <- function(.data) {
+elem.to.wide <- function(.data, idvar = 'formula') {
   df.wide <- stats::reshape(.data,
                  timevar = 'variable',
-                 idvar = 'formula',
+                 idvar = idvar,
                  direction = 'wide')
   names(df.wide) <- gsub('^value\\.', '', names(df.wide))
   row.names(df.wide) <- NULL
