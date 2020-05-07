@@ -32,10 +32,12 @@ df <- do.call('rbind', mclapply(seq_along(boot), function(i) {
 
 # Reshape to wide format
 df.wide <- elem.to.wide(df, idvar = c('dataset', 'formula'))
+df.wide
 
 # Summarize mean, LCI, and UCI by formula and variable
 alpha <- 0.05
-df %>% group_by(formula, variable) %>%
+df.mean <- df %>% group_by(formula, variable) %>%
   summarise(mean = mean(value),
             LCI = quantile(value, c(alpha/2)),
             UCI = quantile(value, c(1 - alpha/2)))
+df.mean
