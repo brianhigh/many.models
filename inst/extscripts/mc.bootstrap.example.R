@@ -13,7 +13,7 @@ options(mc.cores = 2)
 data("mtcars")
 df <- mtcars
 
-# Create boostraps
+# Create bootstraps
 set.seed(1)
 n <- 4
 boot <- mclapply(1:n, function(i) df[base::sample(1:nrow(df), replace = TRUE),])
