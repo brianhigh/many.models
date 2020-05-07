@@ -31,7 +31,7 @@ df.long <- do.call('rbind', mclapply(seq_along(boots), function(i) {
 )
 
 # Reshape to wide format
-df.wide <- elem.to.wide(df, idvar = c('dataset', 'formula'))
+df.wide <- elem.to.wide(df.long, idvar = c('dataset', 'formula'))
 df.wide
 
 # Summarize mean, LCI, and UCI by formula and variable
