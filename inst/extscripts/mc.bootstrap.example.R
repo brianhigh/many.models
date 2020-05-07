@@ -15,7 +15,7 @@ df <- mtcars
 # Create boostraps
 set.seed(1)
 n <- 4
-boot <- lapply(1:n, function(i) df[base::sample(1:nrow(df), replace = TRUE),])
+boot <- mclapply(1:n, function(i) df[base::sample(1:nrow(df), replace = TRUE),])
 
 # Create formulas
 formulas <- c('mpg ~ cyl', 'mpg ~ cyl + disp', 'mpg ~ cyl + disp + hp')
