@@ -19,9 +19,9 @@ stat.fun <- function(data, ind, formula, model.fun, elem, ...) {
 }
 
 clean.fun <- function(df, f) {
-  df$dataset <-row.names(df)
+  df$dataset <- row.names(df)
   df$formula <- f
-  n <- ncol(df)-2
+  n <- ncol(df) - 2
   df <- df[, c('formula', 'dataset', names(df)[1:n])]
 
   df <- stats::reshape(
@@ -43,7 +43,7 @@ df.long <- do.call('rbind', lapply(formulas, function(f) {
   myBoot <- boot(data = df, statistic = stat.fun, R = nboot,
                  parallel = 'multicore', ncpus = num_cores,
                  formula = f, model.fun = 'lm', elem = 'coefficients')
-  out <-as.data.frame(myBoot$t)
+  out <- as.data.frame(myBoot$t)
   names(out) <- names(myBoot$t0)
   clean.fun(out, f)
 }))
