@@ -1,23 +1,26 @@
 # Example multicore bootstrapping using the "boot" package.
 
+# Load packages
 library(boot)
 library(datasets)
 library(dplyr)
 
 # Load data
 data("mtcars")
-df <- mtcars
 
+# Define variables
+df <- mtcars
 num_cores <- 2
 nboot <- 4
-
 formulas <- c('mpg ~ cyl', 'mpg ~ cyl + disp', 'mpg ~ cyl + disp + hp')
 
+# Define function to run model
 stat.fun <- function(data, ind, formula, model.fun, elem, ...) {
   rand.ind <- sample(ind, replace = TRUE)
   do.call(model.fun, list(formula, data[rand.ind,], ...))[[elem]]
 }
 
+# Define function to reshape model output
 reshape.fun <- function(df) {
   stats::reshape(
     df,
@@ -30,6 +33,7 @@ reshape.fun <- function(df) {
   )
 }
 
+# Define function to clean model output
 clean.fun <- function(df, f) {
   df$dataset <- row.names(df)
   df$formula <- f
@@ -41,6 +45,7 @@ clean.fun <- function(df, f) {
   df
 }
 
+# Run model for all formulas with bootstraps
 df.long <- do.call('rbind', lapply(formulas, function(f) {
   myBoot <- boot(data = df, statistic = stat.fun, R = nboot,
                  parallel = 'multicore', ncpus = num_cores,
