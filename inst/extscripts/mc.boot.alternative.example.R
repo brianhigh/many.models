@@ -14,8 +14,8 @@ nboot <- 4
 formulas <- c('mpg ~ cyl', 'mpg ~ cyl + disp', 'mpg ~ cyl + disp + hp')
 
 stat.fun <- function(data, ind, formula, model.fun, elem, ...) {
-  ind <- sample(ind, replace = TRUE)
-  do.call(model.fun, list(formula, data[ind,], ...))[[elem]]
+  rand.ind <- sample(ind, replace = TRUE)
+  do.call(model.fun, list(formula, data[rand.ind,], ...))[[elem]]
 }
 
 clean.fun <- function(df, f) {
