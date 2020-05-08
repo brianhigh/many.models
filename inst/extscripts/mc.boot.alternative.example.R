@@ -3,6 +3,7 @@
 # Load packages
 library(boot)
 library(datasets)
+library(doBy)
 
 # Load data
 data("mtcars")
@@ -46,21 +47,12 @@ clean.fun <- function(df, f) {
   df
 }
 
-# Define function to summarize results by formula and variable
-summarize.results <- function(df, alpha = 0.05) {
-  df <- df[with(df, order(formula, dataset, variable)),]
-  df.by <- unique(df[, c("formula", "variable")])
-  df.out <- do.call('rbind',
-                     with(df,
-                          by(value, list(variable, formula), function(x) {
-                       est.mean <- mean(x, na.rm = TRUE)
-                       LCI <- c(quantile(x, c(alpha / 2)))
-                       UCI <- c(quantile(x, 1 - c(alpha / 2)))
-                       list(est.mean = est.mean, est.LCI = LCI, est.UCI = UCI)
-                     })))
-  df.out <- cbind(df.by, df.out)
-  row.names(df.out) <- NULL
-  df.out
+# Define function to summarize results
+summarize.fun <- function(x, alpha = 0.05) {
+  est.mean <- mean(x, na.rm = TRUE)
+  LCI <- c(quantile(x, c(alpha / 2)))
+  UCI <- c(quantile(x, 1 - c(alpha / 2)))
+  list(est.mean = est.mean, est.LCI = LCI, est.UCI = UCI)
 }
 
 # Run model for all formulas with bootstraps
@@ -74,6 +66,5 @@ df.long <- do.call('rbind', lapply(formulas, function(f) {
   clean.fun(out, f)
 }))
 
-# Summarize results
-df.mean <- summarize.results(df.long)
-df.mean
+# Summarize results by formula and variable
+summaryBy(value ~ formula + variable, df.long, summarize.fun)
