@@ -15,7 +15,7 @@ df <- mtcars
 
 # Create bootstraps
 set.seed(1)
-n <- 4
+n <- 100
 boots <- mclapply(1:n, function(i) df[base::sample(1:nrow(df), replace = T),])
 
 # Create formulas
