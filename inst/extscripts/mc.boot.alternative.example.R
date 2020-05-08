@@ -49,10 +49,9 @@ clean.fun <- function(df, f) {
 
 # Define function to summarize results
 summarize.fun <- function(x, alpha = 0.05) {
-  est.mean <- mean(x, na.rm = TRUE)
-  LCI <- c(quantile(x, c(alpha / 2)))
-  UCI <- c(quantile(x, 1 - c(alpha / 2)))
-  list(est.mean = est.mean, est.LCI = LCI, est.UCI = UCI)
+  list(est.mean = mean(x, na.rm = TRUE),
+       est.LCI = c(quantile(x, c(alpha / 2))),
+       est.UCI = c(quantile(x, 1 - c(alpha / 2))))
 }
 
 # Run model for all formulas with bootstraps
@@ -67,4 +66,4 @@ df.long <- do.call('rbind', lapply(formulas, function(f) {
 }))
 
 # Summarize results by formula and variable
-summaryBy(value ~ formula + variable, df.long, summarize.fun)
+summaryBy(value ~ formula + variable, data = df.long, FUN = summarize.fun)
