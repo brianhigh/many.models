@@ -4,7 +4,7 @@
 \alias{extract.elem}
 \title{Extract a Model Fit Element}
 \usage{
-extract.elem(.data, .formula, .fun, elem, ...)
+extract.elem(.data, .formula, .fun, elem, mod.sum = FALSE, ...)
 }
 \arguments{
 \item{.data}{Data frame.}
@@ -14,6 +14,8 @@ extract.elem(.data, .formula, .fun, elem, ...)
 \item{.fun}{Model function such as: "lm".}
 
 \item{elem}{Element to extract from fit object, such as: "coefficients".}
+
+\item{mod.sum}{If FALSE (default), summary() is not run on model fit.}
 
 \item{...}{Additional options for .fun such as: family = "inverse.gaussian".}
 }
@@ -34,6 +36,9 @@ weights <- c(abs(rnorm(nrow(mtcars))))
 
 df <- extract.elem(.data = mtcars, .formula = formulas,
                    .fun = 'lm', elem = 'coefficients')
+
+df.sum <- extract.elem(.data = mtcars, .formula = formulas, .fun = "lm",
+                       elem = "coefficients", mod.sum = TRUE)
 
 df.residuals <- extract.elem(.data = mtcars, .formula = formulas,
                              .fun = 'lm', elem = 'residuals')

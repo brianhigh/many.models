@@ -4,12 +4,14 @@
 \alias{elem.to.wide}
 \title{Reshape a Model Fit Element}
 \usage{
-elem.to.wide(.data, idvar = "formula")
+elem.to.wide(.data, idvar = "formula", strip = "value.")
 }
 \arguments{
 \item{.data}{Data frame with "variable", "value", and "formula" columns.}
 
 \item{idvar}{Names of one or more grouping variables, passed to reshape().}
+
+\item{strip}{String (literal) to remove from variable names in result.}
 }
 \value{
 Data frame in "Wide" format.
@@ -24,6 +26,12 @@ formulas <- c('mpg ~ cyl', 'mpg ~ cyl + disp', 'mpg ~ cyl + disp + hp')
 df <- extract.elem(.data = mtcars, .formula = formulas,
                    .fun = 'lm', elem = 'coefficients')
 df.wide <- elem.to.wide(df)
+df.wide
+
+df.sum <- extract.elem(.data = mtcars, .formula = formulas, .fun = "lm",
+                       elem = "coefficients", mod.sum = TRUE)
+df.wide <- elem.to.wide(df.sum[, c("formula", "variable", "Estimate")],
+                        strip = "Estimate.")
 df.wide
 
 }
