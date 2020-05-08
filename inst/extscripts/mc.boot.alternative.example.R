@@ -3,6 +3,7 @@
 # Load packages
 library(boot)
 library(datasets)
+library(reshape2)
 library(doBy)
 
 # Load data
@@ -22,26 +23,13 @@ stat.fun <- function(data, ind, formula, model.fun, elem, cols, ...) {
   )[[elem]][, cols]
 }
 
-# Define function to reshape model output
-reshape.fun <- function(df) {
-  stats::reshape(
-    df,
-    varying = list(names(df[, 3:ncol(df)])),
-    times = names(df[, 3:ncol(df)]),
-    timevar = 'variable',
-    idvar = c('formula', 'dataset'),
-    ids = row.names(df),
-    direction = "long"
-  )
-}
-
 # Define function to clean model output
 clean.fun <- function(df, f) {
   df$dataset <- row.names(df)
   df$formula <- f
   n <- ncol(df) - 2
   df <- df[, c('formula', 'dataset', names(df)[1:n])]
-  df <- reshape.fun(df)
+  df <- melt(df, id.vars = c('formula', 'dataset'))
   row.names(df) <- NULL
   names(df) <- c('formula', 'dataset', 'variable', 'value')
   df
