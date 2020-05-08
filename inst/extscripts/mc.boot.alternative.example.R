@@ -3,7 +3,6 @@
 # Load packages
 library(boot)
 library(datasets)
-library(dplyr)
 
 # Load data
 data("mtcars")
@@ -11,13 +10,15 @@ data("mtcars")
 # Define variables
 df <- mtcars
 num_cores <- 2
-nboot <- 4
+nboot <- 100
 formulas <- c('mpg ~ cyl', 'mpg ~ cyl + disp', 'mpg ~ cyl + disp + hp')
 
-# Define function to run model
-stat.fun <- function(data, ind, formula, model.fun, elem, ...) {
+# Define function to run model and return variables of interest
+stat.fun <- function(data, ind, formula, model.fun, elem, cols, ...) {
   rand.ind <- sample(ind, replace = TRUE)
-  do.call(model.fun, list(formula, data[rand.ind,], ...))[[elem]]
+  summary(
+    do.call(model.fun, list(formula, data[rand.ind,], ...))
+  )[[elem]][, cols]
 }
 
 # Define function to reshape model output
@@ -45,20 +46,34 @@ clean.fun <- function(df, f) {
   df
 }
 
+# Define function to summarize results by formula and variable
+summarize.results <- function(df, alpha = 0.05) {
+  df <- df[with(df, order(formula, dataset, variable)),]
+  df.by <- unique(df[, c("formula", "variable")])
+  df.out <- do.call('rbind',
+                     with(df,
+                          by(value, list(variable, formula), function(x) {
+                       est.mean <- mean(x, na.rm = TRUE)
+                       LCI <- c(quantile(x, c(alpha / 2)))
+                       UCI <- c(quantile(x, 1 - c(alpha / 2)))
+                       list(est.mean = est.mean, est.LCI = LCI, est.UCI = UCI)
+                     })))
+  df.out <- cbind(df.by, df.out)
+  row.names(df.out) <- NULL
+  df.out
+}
+
 # Run model for all formulas with bootstraps
 df.long <- do.call('rbind', lapply(formulas, function(f) {
   myBoot <- boot(data = df, statistic = stat.fun, R = nboot,
                  parallel = 'multicore', ncpus = num_cores,
-                 formula = f, model.fun = 'lm', elem = 'coefficients')
+                 formula = f, model.fun = 'lm', elem = 'coefficients',
+                 cols = 'Estimate')
   out <- as.data.frame(myBoot$t)
   names(out) <- names(myBoot$t0)
   clean.fun(out, f)
 }))
 
-# Summarize mean, LCI, and UCI by formula and variable
-alpha <- 0.05
-df.mean <- df.long %>% group_by(formula, variable) %>%
-  summarise(mean = mean(value),
-            LCI = quantile(value, c(alpha/2)),
-            UCI = quantile(value, c(1 - alpha/2)))
+# Summarize results
+df.mean <- summarize.results(df.long)
 df.mean
