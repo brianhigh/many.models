@@ -2,7 +2,6 @@
 
 # Load packages
 library(boot)
-library(datasets)
 library(reshape2)
 library(doBy)
 
@@ -23,13 +22,13 @@ stat.fun <- function(data, ind, formula, model.fun, elem, cols, ...) {
 
 # Define function to clean model output
 clean.fun <- function(df, .formula) {
-  df$dataset <- row.names(df)
+  df$boot <- row.names(df)
   df$formula <- .formula
   n <- ncol(df) - 2
-  df <- df[, c('formula', 'dataset', names(df)[1:n])]
-  df <- melt(df, id.vars = c('formula', 'dataset'))
+  df <- df[, c('formula', 'boot', names(df)[1:n])]
+  df <- melt(df, id.vars = c('formula', 'boot'))
   row.names(df) <- NULL
-  names(df) <- c('formula', 'dataset', 'variable', 'estimate')
+  names(df) <- c('formula', 'boot', 'variable', 'est')
   df
 }
 
@@ -49,4 +48,4 @@ df.long <- do.call('rbind', lapply(formulas, function(f) {
 }))
 
 # Summarize results by formula and variable
-summaryBy(estimate ~ formula + variable, data = df.long, FUN = mean.ci.fun)
+summaryBy(est ~ formula + variable, data = df.long, FUN = mean.ci.fun)
