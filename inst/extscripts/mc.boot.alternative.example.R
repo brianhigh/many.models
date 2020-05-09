@@ -18,40 +18,35 @@ formulas <- c('mpg ~ cyl', 'mpg ~ cyl + disp', 'mpg ~ cyl + disp + hp')
 # Define function to run model and return variables of interest
 stat.fun <- function(data, ind, formula, model.fun, elem, cols, ...) {
   rand.ind <- sample(ind, replace = TRUE)
-  summary(
-    do.call(model.fun, list(formula, data[rand.ind,], ...))
-  )[[elem]][, cols]
+    do.call(model.fun, list(formula, data[rand.ind,], ...))[[elem]]
 }
 
 # Define function to clean model output
-clean.fun <- function(df, f) {
+clean.fun <- function(df, .formula) {
   df$dataset <- row.names(df)
-  df$formula <- f
+  df$formula <- .formula
   n <- ncol(df) - 2
   df <- df[, c('formula', 'dataset', names(df)[1:n])]
   df <- melt(df, id.vars = c('formula', 'dataset'))
   row.names(df) <- NULL
-  names(df) <- c('formula', 'dataset', 'variable', 'value')
+  names(df) <- c('formula', 'dataset', 'variable', 'estimate')
   df
 }
 
-# Define function to summarize results
-summarize.fun <- function(x, alpha = 0.05) {
-  list(est.mean = mean(x, na.rm = TRUE),
-       est.LCI = c(quantile(x, c(alpha / 2))),
-       est.UCI = c(quantile(x, 1 - c(alpha / 2))))
+# Define function to calculate mean and confidence interval
+mean.ci.fun <- function(x, alpha = 0.05) {
+    c(mean = mean(x), quantile(x, probs = c(alpha / 2, 1 - alpha / 2)))
 }
 
 # Run model for all formulas with bootstraps
 df.long <- do.call('rbind', lapply(formulas, function(f) {
-  myBoot <- boot(data = df, statistic = stat.fun, R = nboot,
-                 parallel = 'multicore', ncpus = num_cores,
-                 formula = f, model.fun = 'lm', elem = 'coefficients',
-                 cols = 'Estimate')
-  out <- as.data.frame(myBoot$t)
-  names(out) <- names(myBoot$t0)
+  boot.res <- boot(data = df, statistic = stat.fun, R = nboot,
+                   parallel = 'multicore', ncpus = num_cores,
+                   formula = f, model.fun = 'lm', elem = 'coefficients')
+  out <- as.data.frame(boot.res$t)
+  names(out) <- names(boot.res$t0)
   clean.fun(out, f)
 }))
 
 # Summarize results by formula and variable
-summaryBy(value ~ formula + variable, data = df.long, FUN = summarize.fun)
+summaryBy(estimate ~ formula + variable, data = df.long, FUN = mean.ci.fun)
